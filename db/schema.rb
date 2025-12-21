@@ -10,8 +10,58 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 0) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_21_073638) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
+  create_table "batches", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.datetime "created_at", null: false
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_batches_on_course_id"
+  end
+
+  create_table "courses", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name"
+    t.bigint "school_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_id"], name: "index_courses_on_school_id"
+  end
+
+  create_table "enrollment_requests", force: :cascade do |t|
+    t.bigint "batch_id", null: false
+    t.datetime "created_at", null: false
+    t.string "status", default: "pending"
+    t.bigint "student_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["batch_id"], name: "index_enrollment_requests_on_batch_id"
+    t.index ["student_id", "batch_id"], name: "index_enrollment_requests_on_student_id_and_batch_id", unique: true
+    t.index ["student_id"], name: "index_enrollment_requests_on_student_id"
+  end
+
+  create_table "schools", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "location"
+    t.string "name"
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email"
+    t.string "name"
+    t.string "role"
+    t.bigint "school_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_id"], name: "index_users_on_school_id"
+  end
+
+  add_foreign_key "batches", "courses"
+  add_foreign_key "courses", "schools"
+  add_foreign_key "enrollment_requests", "batches"
+  add_foreign_key "enrollment_requests", "users", column: "student_id"
+  add_foreign_key "users", "schools"
 end
