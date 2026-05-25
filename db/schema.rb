@@ -10,24 +10,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_21_073638) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_10_105051) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "batches", force: :cascade do |t|
     t.bigint "course_id", null: false
     t.datetime "created_at", null: false
+    t.bigint "creator_id", null: false
     t.string "name"
     t.datetime "updated_at", null: false
     t.index ["course_id"], name: "index_batches_on_course_id"
+    t.index ["creator_id"], name: "index_batches_on_creator_id"
   end
 
   create_table "courses", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.bigint "creator_id", null: false
     t.text "description"
     t.string "name"
     t.bigint "school_id", null: false
     t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_courses_on_creator_id"
     t.index ["school_id"], name: "index_courses_on_school_id"
   end
 
@@ -52,15 +56,23 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_21_073638) do
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email"
+    t.string "encrypted_password", default: "", null: false
     t.string "name"
+    t.datetime "remember_created_at"
+    t.datetime "reset_password_sent_at"
+    t.string "reset_password_token"
     t.string "role"
-    t.bigint "school_id", null: false
+    t.bigint "school_id"
     t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["school_id"], name: "index_users_on_school_id"
   end
 
   add_foreign_key "batches", "courses"
+  add_foreign_key "batches", "users", column: "creator_id"
   add_foreign_key "courses", "schools"
+  add_foreign_key "courses", "users", column: "creator_id"
   add_foreign_key "enrollment_requests", "batches"
   add_foreign_key "enrollment_requests", "users", column: "student_id"
   add_foreign_key "users", "schools"
